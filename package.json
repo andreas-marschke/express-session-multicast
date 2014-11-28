@@ -1,0 +1,29 @@
+{
+  "name": "connect-session-multicast",
+  "version": "0.0.0",
+  "description": "Tomcat-Style Session Store using Multicast Replication and NeDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andreas-marschke/connect-session-multicast.git"
+  },
+  "keywords": [
+    "connect",
+    "middleware",
+    "multicast",
+    "session",
+    "tomcat",
+    "replication"
+  ],
+  "author": "Andreas Marschke <npm@andreas-marschke.name>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreas-marschke/connect-session-multicast/issues"
+  },
+  "dependencies": {
+    "nedb": "^0.11.1"
+  }
+}
