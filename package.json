@@ -1,7 +1,7 @@
 {
-  "name": "connect-session-multicast",
+  "name": "express-session-multicast",
   "version": "0.0.0",
-  "description": "Tomcat-Style Session Store using Multicast Replication and NeDB",
+  "description": "Multicast Session Replication for webclusters",
   "main": "index.js",
   "scripts": {
     "test": "grunt test"
@@ -15,7 +15,6 @@
     "middleware",
     "multicast",
     "session",
-    "tomcat",
     "replication"
   ],
   "author": "Andreas Marschke <npm@andreas-marschke.name>",
