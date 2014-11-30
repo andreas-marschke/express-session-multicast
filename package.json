@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/andreas-marschke/connect-session-multicast.git"
+    "url": "https://github.com/andreas-marschke/express-session-multicast.git"
   },
   "keywords": [
     "connect",
@@ -20,7 +20,7 @@
   "author": "Andreas Marschke <npm@andreas-marschke.name>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/andreas-marschke/connect-session-multicast/issues"
+    "url": "https://github.com/andreas-marschke/express-session-multicast/issues"
   },
   "dependencies": {
     "nedb": "^0.11.1"
