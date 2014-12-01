@@ -57,6 +57,40 @@ your a wireshark session as UDP traffic from an IP to the broadcast IP in wiresh
 
 The broadcast address shown here is the notification to the cluster that a new node has appeared in the cluster.
 
+### Options
+
+#### options.use `String`
+_Default_: `"v4"`
+Set either `"v4"` or `"v6"` here to decide wether to use IPv4 or IPv6 for the multicast
+
+#### options.multicast `String`
+_Default_: depending on whether you decided to use `"v4"` or `"v6"` it'll either be `"228.0.0.5"` or `"ffbe::043"`
+Sets the IPv4 or IPv6 address to use for broadcasting data to others. This will be taken to send session info to
+the rest of the group.
+
+#### options.multicastPort `Integer`
+_Default_: `4000`
+The Port to listen for and send broadcast Messages to.
+
+#### options.ipv4 and options.ipv6 `String`
+_Default_: First IP-Address of the host on either `eth0` or `em0` or `en0` depending on wether it exists or not
+Sets the IP-Address broadcasted to the rest of the group and the IP it will filter on should it recieve broadcast
+messages from the net.
+
+#### options.useSessionTTL `Bool`
+_Default_: `false`
+Set whether to use maxAge on sessions created or not.
+
+#### options.sesssionTTL `Integer`
+_Default_: `5000`
+Time a Session stays alive in the store.
+
+#### options.multicastTTL `Integer`
+_Default_: `1`
+Distance to go across routing equipment with the multicast pakets. If you want to just send pakets in the local LAN
+leave it at `1` if you have multiple networks being part of this setup you may check your number of hops with a
+`traceroute`.
+
 ## How it works
 
 Once the store has been initialized with a function call to the constructor (`new MulticastStore(/* options here*/)`)
