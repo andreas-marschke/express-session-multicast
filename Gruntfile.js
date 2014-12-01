@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 		    gc: true
 		},
 		src: [
-		    "tests/index.js"
+		    "test/index.js"
 		]
 	    }
 	}
