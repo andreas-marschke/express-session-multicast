@@ -17,6 +17,9 @@
     "session",
     "replication"
   ],
+  "script": {
+    "test": "grunt test"
+  },
   "author": "Andreas Marschke <npm@andreas-marschke.name>",
   "license": "MIT",
   "bugs": {
