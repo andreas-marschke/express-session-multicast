@@ -1,6 +1,6 @@
 {
   "name": "express-session-multicast",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Multicast Session Replication for webclusters",
   "main": "index.js",
   "scripts": {
