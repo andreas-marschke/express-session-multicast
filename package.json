@@ -32,7 +32,8 @@
     "chai": "^1.10.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
-    "grunt-eslint": "^2.1.0",
+    "eslint": "^3.11",
+    "gruntify-eslint": "^2.0.0",
     "grunt-mocha-test": "^0.12.4",
     "mocha": "^2.0.1",
     "mockery": "^1.4.0"
