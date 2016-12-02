@@ -26,11 +26,25 @@ module.exports = function(grunt) {
           "test/index.js"
         ]
       }
+    },
+    jsdoc: {
+      dist: {
+        src: [
+          "lib/store.js",
+          "lib/serialization.js"
+        ],
+        options: {
+          destination: "doc",
+          configure: "./jsdoc.conf.json",
+          readme: "README.md"
+        }
+      }
     }
   });
 
   grunt.loadNpmTasks("gruntify-eslint");
   grunt.loadNpmTasks("grunt-mocha-test");
+  grunt.loadNpmTasks("grunt-jsdoc");
 
   grunt.registerTask("test", ["eslint", "mochaTest"]);
   grunt.registerTask("default", ["test"]);
