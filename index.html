@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>express-session-multicast</h1><blockquote>
+<p>Multicast Session Replication for webclusters</p>
+</blockquote>
+<p>This session module allows the user to share sessions across multiple servers by<br>using udp multicast messages sent from the first server at which the session has<br>been created and stored at runtime inside an instance of NeDB.</p>
+<p>This is inspired by the way tomcat does session replication amongst nodes in a cluster.</p>
+<h2>Configuration:</h2><pre class="prettyprint source lang-javascript"><code>    var express = require(&quot;express&quot;);
+    var session = require(&quot;express-session&quot;);
+    var SessionMulticast = require(&quot;express-session-multicast&quot;)(session);
+
+    var app = express();
+    var sess = session({
+        secret: &quot;test&quot;,
+        resave: false,
+        saveUninitialized: false,
+        store: new SessionMulticast({
+            // multicast address to listen for at runtime
+            multicast: &quot;228.0.0.5&quot;,
+            // port to recieve multicasts on
+            multicastPort: 4000,
+            // ip to report on start (NEVER set this to 127.0.0.1)
+            ip: &quot;10.1.0.81&quot;,
+            // use IPv4 instead of v6
+            use: &quot;v4&quot;,
+            // to set or not to set session time-to-live value (expiry)
+            useSessionTTL: true,
+            // expiry time for sessions
+            sessionTTL: 1000,
+            // multicast packet ttl (ie. 3 hops means 3 routers may be between this and the next server
+            multicastTTL: 1,
+            // logging facility ie. bunyan, console or winston
+            logger: console
+        })
+    });</code></pre><p>Based on this you'll need to allow servers access to 4000/udp in the firewall. In linux you may do it like this:</p>
+<pre class="prettyprint source lang-shell"><code>$> iptables -A INPUT -p udp -m state --state NEW -m udp --dport 4000 -j ACCEPT</code></pre><p>This will put all incoming packets on port 4000/udp into the ACCEPT chain of iptables and lets them pass on<br>to the application listening on that port.</p>
+<p>Also all cluster relevant traffic is sent to the broadcast address <code>228.0.0.5</code> you can see this in your<br>your a wireshark session as UDP traffic from an IP to the broadcast IP in wireshark like so:</p>
+<p><img src="assets/wireshark_node_up.png" alt="Wireshark Paket Analysis"></p>
+<p>The broadcast address shown here is the notification to the cluster that a new node has appeared in the cluster.</p>
+<h3>Options</h3><h4>options.use <code>String</code></h4><p><em>Default</em>: <code>&quot;v4&quot;</code><br>Set either <code>&quot;v4&quot;</code> or <code>&quot;v6&quot;</code> here to decide wether to use IPv4 or IPv6 for the multicast</p>
+<h4>options.multicast <code>String</code></h4><p><em>Default</em>: depending on whether you decided to use <code>&quot;v4&quot;</code> or <code>&quot;v6&quot;</code> it'll either be <code>&quot;228.0.0.5&quot;</code> or <code>&quot;ffbe::043&quot;</code><br>Sets the IPv4 or IPv6 address to use for broadcasting data to others. This will be taken to send session info to<br>the rest of the group.</p>
+<h4>options.multicastPort <code>Integer</code></h4><p><em>Default</em>: <code>4000</code><br>The Port to listen for and send broadcast Messages to.</p>
+<h4>options.ipv4 and options.ipv6 <code>String</code></h4><p><em>Default</em>: First IP-Address of the host on either <code>eth0</code> or <code>em0</code> or <code>en0</code> depending on wether it exists or not<br>Sets the IP-Address broadcasted to the rest of the group and the IP it will filter on should it recieve broadcast<br>messages from the net.</p>
+<h4>options.useSessionTTL <code>Bool</code></h4><p><em>Default</em>: <code>false</code><br>Set whether to use maxAge on sessions created or not.</p>
+<h4>options.sesssionTTL <code>Integer</code></h4><p><em>Default</em>: <code>5000</code><br>Time a Session stays alive in the store.</p>
+<h4>options.multicastTTL <code>Integer</code></h4><p><em>Default</em>: <code>1</code><br>Distance to go across routing equipment with the multicast pakets. If you want to just send pakets in the local LAN<br>leave it at <code>1</code> if you have multiple networks being part of this setup you may check your number of hops with a<br><code>traceroute</code>.</p>
+<h2>How it works</h2><p>Once the store has been initialized with a function call to the constructor (<code>new MulticastStore(/* options here*/)</code>)<br>the store will first evaluate the passed configuration and try to sanitize it as needed. After that it will<br>create a new socket using <code>udp4</code> from the datagram package or <code>udp6</code> (not implemented yet) depending on wether<br>you've set <code>use: &quot;v4&quot;</code> or <code>use: &quot;v6&quot;</code> in the configuration. Once the socket is bound to the configured port<br>(<code>multicastPort</code>) it will add itself to the broadcast membership list ont the configured <code>multicast</code> IP.</p>
+<p>If the flag <code>gracefullShutdown</code> has been set it also creates an eventlistener callback on the process signal<br><code>SIGINT</code> or <code>interrupt</code> signal which will fire a callback that will inform the rest of the cluster that this<br>node is going down and they may take this host out of their in memory database of hosts to trust and listen<br>for should they notifiy the node about an event.</p>
+<p>Have these preliminairy steps been taken successfully it will send out a message to the broadcast IP with the<br>stringified JSON content:</p>
+<pre class="prettyprint source"><code> {
+   status: &quot;new&quot;,
+   type: &quot;node&quot;,
+   address: &quot;&lt;IP of the server>&quot;,
+   port: &quot;&lt;multicastPort>&quot;
+ }</code></pre><p>This will introduce a new server to the exisiting cluster nodes. All other nodes are now asked to send back<br>a friendly greeting packet to the server introducing themselves to the new comer. The fastest of these<br>introductors will then be asked by the newcomer node to tell it the currently replicated set of sessions so<br>as to store them in its in-memory session database.</p>
+<h2>Pros and Cons</h2><h3>Con</h3><p>This implementation and design may be constrained by the amount of memory you provide to each of your nodes.<br>It may not scale as much as a full storage backed session store that stores information for long running<br>sessions. </p>
+<h3>Pro</h3><p>With this replication mechanism every other node of the service knows about the sessions as soon as they are<br>created and do not require to call back to an external source session store that may fail and take all session<br>information with it.</p>
+<p>This reduces maintainance cost since you can simply tear down a node of the service, have it reconnect and<br>know exactly as much as the rest of the clust by simply talking to the other nodes.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-express-session-multicast.html">express-session-multicast</a></li></ul><h3>Classes</h3><ul><li><a href="express-session-multicast.MessageSerializer.html">MessageSerializer</a></li><li><a href="module-express-session-multicast-ReplicatedStore.html">ReplicatedStore</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Dec 02 2016 01:45:22 GMT+0100 (CET)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
